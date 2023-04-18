@@ -13,7 +13,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -33,8 +32,8 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public UserDto update(@PathVariable Long id,
-                          @RequestBody Map<String, Object> fields) {
-        return userService.update(id, fields);
+                          @RequestBody UserDto userDto) {
+        return userService.update(id, userDto);
     }
 
     @GetMapping("/{id}")

@@ -25,7 +25,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public void updateItem(Item item) {
         Item oldItem = items.stream()
-                .filter(x -> Objects.equals(x.getId(), item.getId()))
+                .filter(i -> Objects.equals(i.getId(), item.getId()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Item with such id wasn't found"));
         items.set(items.indexOf(oldItem), item);
@@ -34,7 +34,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item findItemById(Integer id) {
         return items.stream()
-                .filter(x -> Objects.equals(x.getId(), id))
+                .filter(i -> Objects.equals(i.getId(), id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Item with such id wasn't found"));
     }
@@ -42,22 +42,22 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<Item> findItemsByUserId(Long userId) {
         return items.stream()
-                .filter(x -> Objects.equals(x.getOwner(), userId))
+                .filter(i -> Objects.equals(i.getOwner(), userId))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Item> getItemsByQuery(String query) {
         Stream<Item> queryForNameField = items.stream()
-                .filter(x -> x.getName()
+                .filter(i -> i.getName()
                         .toLowerCase()
                         .contains(query.toLowerCase().trim()))
-                .filter(x -> x.getAvailable().equals(true));
+                .filter(i -> i.getAvailable().equals(true));
         Stream<Item> queryForDescriptionField = items.stream()
-                .filter(x -> x.getDescription()
+                .filter(i -> i.getDescription()
                         .toLowerCase()
                         .contains(query.toLowerCase().trim()))
-                .filter(x -> x.getAvailable().equals(true));
+                .filter(i -> i.getAvailable().equals(true));
         return Stream.concat(queryForNameField, queryForDescriptionField).distinct()
                 .collect(Collectors.toList());
     }

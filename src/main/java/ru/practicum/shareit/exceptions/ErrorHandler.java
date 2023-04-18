@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    private static final String LOG_MESSAGE = "Bad request : ";
-
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse alreadyExistHandle(final AlreadyExistException e) {
@@ -21,7 +19,7 @@ public class ErrorHandler {
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundHandle(final NotFoundException e) {
-        log.error(LOG_MESSAGE + e.getMessage());
+        log.error("Bad request : " + e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 

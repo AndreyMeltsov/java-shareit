@@ -15,7 +15,6 @@ import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/items")
@@ -32,8 +31,8 @@ public class ItemController {
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @PathVariable Integer id,
-                              @RequestBody Map<String, Object> fields) {
-        return itemService.updateItem(userId, id, fields);
+                              @RequestBody ItemDto itemDto) {
+        return itemService.updateItem(userId, id, itemDto);
     }
 
     @GetMapping("/{id}")

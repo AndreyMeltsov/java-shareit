@@ -3,17 +3,13 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ReflectionUtils;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,17 +29,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto updateItem(Long userId, Integer id, Map<String, Object> fields) {
+    public ItemDto updateItem(Long userId, Integer id, ItemDto itemDto) {
         Item item = itemRepository.findItemById(id);
         if (!item.getOwner().equals(userId)) {
             throw new NotFoundException("Attempt to update item by user who isn't its owner");
         }
-        fields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(Item.class, key);
-            field.setAccessible(true);
-            ReflectionUtils.setField(Objects.requireNonNull(field), item, value);
-            field.setAccessible(false);
-        });
+        if (itemDto.getName() != null) {
+            item.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription() != null) {
+            item.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null) {
+            item.setAvailable(itemDto.getAvailable());
+        }
         itemRepository.updateItem(item);
         log.info("Item was updated in DB. New item is: {}", item);
         return ItemMapper.toItemDto(item);

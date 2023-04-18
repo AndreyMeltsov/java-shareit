@@ -7,7 +7,6 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -21,7 +20,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User create(User user) {
-        if (users.stream().anyMatch(x -> Objects.equals(x.getEmail(), user.getEmail()))) {
+        if (users.stream().anyMatch(u -> Objects.equals(u.getEmail(), user.getEmail()))) {
             throw new AlreadyExistException("User with such email has already existed");
         }
         user.setId(++id);
@@ -32,25 +31,29 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void update(User user) {
         if (users.stream()
-                .filter(x -> !Objects.equals(x.getId(), user.getId()))
-                .anyMatch(x -> Objects.equals(x.getEmail(), user.getEmail()))) {
+                .filter(u -> !Objects.equals(u.getId(), user.getId()))
+                .anyMatch(u -> Objects.equals(u.getEmail(), user.getEmail()))) {
             throw new AlreadyExistException("User with such email has already existed");
         }
-        Optional<User> oldUser = users.stream()
-                .filter(x -> Objects.equals(x.getId(), user.getId()))
-                .findFirst();
-        oldUser.ifPresent(value -> users.set(users.indexOf(value), user));
+        users.stream()
+                .filter(u -> Objects.equals(u.getId(), user.getId()))
+                .findFirst()
+                .ifPresent(value -> users.set(users.indexOf(value), user));
     }
 
     @Override
     public User findUserById(Long id) {
-        Optional<User> user = users.stream().filter(x -> Objects.equals(x.getId(), id)).findFirst();
-        return user.orElseThrow(() -> new NotFoundException("User with such id wasn't found"));
+        return users.stream()
+                .filter(u -> Objects.equals(u.getId(), id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("User with such id wasn't found"));
     }
 
     @Override
     public void deleteUser(Long id) {
-        Optional<User> user = users.stream().filter(x -> Objects.equals(x.getId(), id)).findFirst();
-        user.ifPresent(users::remove);
+        users.stream()
+                .filter(u -> Objects.equals(u.getId(), id))
+                .findFirst()
+                .ifPresent(users::remove);
     }
 }
