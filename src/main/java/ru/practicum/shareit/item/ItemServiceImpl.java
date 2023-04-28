@@ -138,8 +138,8 @@ public class ItemServiceImpl implements ItemService {
         User author = UserMapper.toUser(userService.findUserById(userId));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item with such id wasn't found"));
-        boolean isAuthorBooker = bookingRepository.
-                findByBookerIdAndEndBefore(userId, LocalDateTime.now(), null)
+        boolean isAuthorBooker = bookingRepository
+                .findByBookerIdAndEndBefore(userId, LocalDateTime.now(), null)
                 .stream()
                 .map(Booking::getItem)
                 .map(Item::getId)
