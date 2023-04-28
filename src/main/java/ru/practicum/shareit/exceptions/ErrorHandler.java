@@ -23,6 +23,13 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse badRequestHandle(final BadRequestException e) {
+        log.error("Bad request : " + e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
     private static class ErrorResponse {
         String error;
 
