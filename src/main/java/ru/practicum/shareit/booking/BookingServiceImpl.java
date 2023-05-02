@@ -26,11 +26,12 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemRepository itemRepository;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
     public Booking createBooking(Long userId, BookingDto bookingDto) {
-        User user = UserMapper.toUser(userService.findUserById(userId));
+        User user = userMapper.toUser(userService.findUserById(userId));
         if (bookingDto.getStart().compareTo(bookingDto.getEnd()) >= 0) {
             throw new BadRequestException("Attempt to book with incorrect date");
         }

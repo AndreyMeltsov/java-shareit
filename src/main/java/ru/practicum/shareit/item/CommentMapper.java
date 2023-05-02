@@ -1,15 +1,17 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class CommentMapper {
-    public static CommentDto toCommentDto(Comment comment) {
+    public CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
@@ -18,7 +20,7 @@ public class CommentMapper {
                 .build();
     }
 
-    public static Comment toComment(CommentDto commentDto, Item item, User author) {
+    public Comment toComment(CommentDto commentDto, Item item, User author) {
         return Comment.builder()
                 .id(commentDto.getId())
                 .text(commentDto.getText())
@@ -28,11 +30,9 @@ public class CommentMapper {
                 .build();
     }
 
-    public static List<CommentDto> toCommentDtos(Iterable<Comment> comments) {
-        List<CommentDto> dtos = new ArrayList<>();
-        for (Comment comment : comments) {
-            dtos.add(toCommentDto(comment));
-        }
-        return dtos;
+    public List<CommentDto> toCommentDtos(List<Comment> comments) {
+        return comments.stream()
+                .map(this::toCommentDto)
+                .collect(Collectors.toList());
     }
 }

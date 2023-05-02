@@ -1,12 +1,14 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class BookingMapper {
-    public static BookingDto toBookingDto(Booking booking) {
+    public BookingDto toBookingDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
@@ -16,11 +18,9 @@ public class BookingMapper {
                 .build();
     }
 
-    public static List<BookingDto> toBookingDto(Iterable<Booking> bookings) {
-        List<BookingDto> dtos = new ArrayList<>();
-        for (Booking booking : bookings) {
-            dtos.add(toBookingDto(booking));
-        }
-        return dtos;
+    public List<BookingDto> toBookingDto(List<Booking> bookings) {
+        return bookings.stream()
+                .map(this::toBookingDto)
+                .collect(Collectors.toList());
     }
 }

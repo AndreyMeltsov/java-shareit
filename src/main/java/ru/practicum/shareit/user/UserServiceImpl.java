@@ -13,10 +13,11 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserDto> findAll() {
-        List<UserDto> users = UserMapper.toUserDto(userRepository.findAll());
+        List<UserDto> users = userMapper.toUserDto(userRepository.findAll());
         log.info("Users quantity is: {}", users.size());
         return users;
     }
@@ -25,12 +26,12 @@ public class UserServiceImpl implements UserService {
     public UserDto create(User user) {
         user = userRepository.save(user);
         log.info("User is added: {}", user);
-        return UserMapper.toUserDto(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override
     public UserDto update(Long id, UserDto userDto) {
-        User user = UserMapper.toUser(findUserById(id));
+        User user = userMapper.toUser(findUserById(id));
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
         log.info("User was updated in DB. New user is: {}", user);
-        return UserMapper.toUserDto(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with such id wasn't found"));
         log.info("User was found in DB: {}", user);
-        return UserMapper.toUserDto(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override

@@ -32,11 +32,15 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
+    private final CommentMapper commentMapper;
+    private final BookingMapper bookingMapper;
 
     @Override
     public Item createItem(Long userId, ItemDto itemDto) {
         userService.findUserById(userId);
-        Item item = ItemMapper.toItem(itemDto, userId, null);
+        Item item = itemMapper.toItem(itemDto, userId, null);
         item = itemRepository.save(item);
         log.info("Item is added: {}", item);
         return item;
@@ -62,7 +66,7 @@ public class ItemServiceImpl implements ItemService {
 
         itemRepository.save(item);
         log.info("Item was updated in DB. New item is: {}", item);
-        return ItemMapper.toItemDto(item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
@@ -83,7 +87,7 @@ public class ItemServiceImpl implements ItemService {
                     .available(item.getAvailable())
                     .lastBooking(lastBooking)
                     .nextBooking(nextBooking)
-                    .comments(CommentMapper.toCommentDtos(comment))
+                    .comments(commentMapper.toCommentDtos(comment))
                     .build();
         } else {
             return ItemWithDateAndCommentsDto.builder()
@@ -91,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
                     .name(item.getName())
                     .description(item.getDescription())
                     .available(item.getAvailable())
-                    .comments(CommentMapper.toCommentDtos(comment))
+                    .comments(commentMapper.toCommentDtos(comment))
                     .build();
         }
     }
@@ -101,7 +105,7 @@ public class ItemServiceImpl implements ItemService {
         userService.findUserById(userId);
         List<Item> userItems = itemRepository.findByOwnerId(userId);
         List<ItemWithDateAndCommentsDto> itemWithDateAndCommentsDtos = new ArrayList<>();
-        List<CommentDto> commentDtos = CommentMapper.toCommentDtos(commentRepository.findByOwnerId(userId));
+        List<CommentDto> commentDtos = commentMapper.toCommentDtos(commentRepository.findByOwnerId(userId));
         for (Item item : userItems) {
             BookingDto lastBooking = getLastBooking(item.getId());
             BookingDto nextBooking = getNextBooking(item.getId());
@@ -128,14 +132,14 @@ public class ItemServiceImpl implements ItemService {
             log.info("Query is empty or null");
             return userItems;
         }
-        userItems = ItemMapper.toItemDto(itemRepository.search(query));
+        userItems = itemMapper.toItemDto(itemRepository.search(query));
         log.info("{} items were found for \"{}\" query", userItems.size(), query);
         return userItems;
     }
 
     @Override
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
-        User author = UserMapper.toUser(userService.findUserById(userId));
+        User author = userMapper.toUser(userService.findUserById(userId));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item with such id wasn't found"));
         boolean isAuthorBooker = bookingRepository
@@ -155,7 +159,7 @@ public class ItemServiceImpl implements ItemService {
                 .build();
         comment = commentRepository.save(comment);
         log.info("Comment was added: {}", comment);
-        return CommentMapper.toCommentDto(comment);
+        return commentMapper.toCommentDto(comment);
     }
 
     private BookingDto getLastBooking(Long itemId) {
@@ -166,7 +170,7 @@ public class ItemServiceImpl implements ItemService {
                 .filter(x -> x.getStart().isBefore(LocalDateTime.now()))
                 .max(Comparator.comparing(Booking::getStart))
                 .orElse(null);
-        return booking != null ? BookingMapper.toBookingDto(booking) : null;
+        return booking != null ? bookingMapper.toBookingDto(booking) : null;
     }
 
     private BookingDto getNextBooking(Long itemId) {
@@ -177,6 +181,6 @@ public class ItemServiceImpl implements ItemService {
                 .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
                 .min(Comparator.comparing(Booking::getStart))
                 .orElse(null);
-        return booking != null ? BookingMapper.toBookingDto(booking) : null;
+        return booking != null ? bookingMapper.toBookingDto(booking) : null;
     }
 }
