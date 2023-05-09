@@ -9,8 +9,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,17 +19,14 @@ import javax.validation.constraints.Size;
 @ToString
 @EqualsAndHashCode
 @Builder
-public class ItemDto {
+public class CommentDto {
     private Long id;
 
     @NotBlank
-    private String name;
-
-    @NotBlank
     @Size(max = 200)
-    private String description;
+    private String text;
 
-    @NotNull
-    private Boolean available;
+    private String authorName;
 
+    private LocalDateTime created;
 }
