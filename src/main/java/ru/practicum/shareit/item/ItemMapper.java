@@ -4,35 +4,38 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ItemMapper {
 
-    public ItemDto toItemDto(Item item) {
+    public ItemDto mapToItemDto(Item item) {
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .requestId(item.getRequestId())
                 .build();
     }
 
-    public Item toItem(ItemDto itemDto, Long owner, Long request) {
+    public Item toItem(ItemDto itemDto, Long owner) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
                 .ownerId(owner)
-                .requestId(request)
+                .requestId(itemDto.getRequestId())
                 .build();
     }
 
-    public List<ItemDto> toItemDto(List<Item> items) {
-        return items.stream()
-                .map(this::toItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> mapToItemDto(Iterable<Item> items) {
+        List<ItemDto> dtos = new ArrayList<>();
+        for (Item item : items) {
+            dtos.add(mapToItemDto(item));
+        }
+        return dtos;
     }
 }

@@ -10,13 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class ErrorHandler {
     @ExceptionHandler()
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse alreadyExistHandle(final AlreadyExistException e) {
-        log.error(e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler()
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundHandle(final NotFoundException e) {
         log.error("Bad request : " + e.getMessage());

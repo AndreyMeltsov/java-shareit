@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -40,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item createItem(Long userId, ItemDto itemDto) {
         userService.findUserById(userId);
-        Item item = itemMapper.toItem(itemDto, userId, null);
+        Item item = itemMapper.toItem(itemDto, userId);
         item = itemRepository.save(item);
         log.info("Item is added: {}", item);
         return item;
@@ -66,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
 
         itemRepository.save(item);
         log.info("Item was updated in DB. New item is: {}", item);
-        return itemMapper.toItemDto(item);
+        return itemMapper.mapToItemDto(item);
     }
 
     @Override
@@ -101,9 +103,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemWithDateAndCommentsDto> findItemsByUserId(Long userId) {
+    public List<ItemWithDateAndCommentsDto> findItemsByUserId(Long userId, Integer from, Integer size) {
         userService.findUserById(userId);
-        List<Item> userItems = itemRepository.findByOwnerId(userId);
+        Page<Item> userItems = itemRepository.findByOwnerId(userId, PageRequest.of(from / size, size));
         List<ItemWithDateAndCommentsDto> itemWithDateAndCommentsDtos = new ArrayList<>();
         List<CommentDto> commentDtos = commentMapper.toCommentDtos(commentRepository.findByOwnerId(userId));
         for (Item item : userItems) {
@@ -120,19 +122,19 @@ public class ItemServiceImpl implements ItemService {
                     .comments(commentDtos)
                     .build());
         }
-        log.info("User with id {} has {} items", userId, userItems.size());
+        log.info("User with id {} has {} items", userId, itemWithDateAndCommentsDtos.size());
         return itemWithDateAndCommentsDtos;
     }
 
     @Override
-    public List<ItemDto> getItemsByQuery(Long userId, String query) {
+    public List<ItemDto> getItemsByQuery(Long userId, String query, Integer from, Integer size) {
         userService.findUserById(userId);
         List<ItemDto> userItems = new ArrayList<>();
         if (query == null || query.isEmpty()) {
             log.info("Query is empty or null");
             return userItems;
         }
-        userItems = itemMapper.toItemDto(itemRepository.search(query));
+        userItems = itemMapper.mapToItemDto(itemRepository.search(query, PageRequest.of(from / size, size)));
         log.info("{} items were found for \"{}\" query", userItems.size(), query);
         return userItems;
     }
