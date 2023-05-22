@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -225,9 +226,9 @@ class BookingServiceImplTest {
 
     @Test
     void findBookingsByState_whenStateIsAll_thenAllBranchIsSelected() {
-        when(bookingRepository.findByBookerId(anyLong(), any())).thenReturn(Page.empty());
+        when(bookingRepository.findByBookerId(anyLong(), any())).thenReturn(Collections.emptyList());
 
-        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "all", 0, 1);
+        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "all", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -237,9 +238,9 @@ class BookingServiceImplTest {
     @Test
     void findBookingsByState_whenStateIsCurrent_thenCurrentBranchIsSelected() {
         when(bookingRepository.findByBookerIdAndCurrentState(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
-        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "current", 0, 1);
+        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "current", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -249,9 +250,9 @@ class BookingServiceImplTest {
     @Test
     void findBookingsByState_whenStateIsPast_thenPastBranchIsSelected() {
         when(bookingRepository.findByBookerIdAndEndBefore(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
-        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "past", 0, 1);
+        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "past", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -261,9 +262,9 @@ class BookingServiceImplTest {
     @Test
     void findBookingsByState_whenStateIsFuture_thenFutureBranchIsSelected() {
         when(bookingRepository.findByBookerIdAndStartAfter(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
-        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "future", 0, 1);
+        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "future", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -273,9 +274,9 @@ class BookingServiceImplTest {
     @Test
     void findBookingsByState_whenStateIsWaiting_thenWaitingBranchIsSelected() {
         when(bookingRepository.findByBookerIdAndStatusIs(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
-        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "waiting", 0, 1);
+        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "waiting", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -285,9 +286,9 @@ class BookingServiceImplTest {
     @Test
     void findBookingsByState_whenStateIsRejected_thenRejectedBranchIsSelected() {
         when(bookingRepository.findByBookerIdAndStatusIs(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
-        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "rejected", 0, 1);
+        List<Booking> actualBookings = bookingService.findBookingsByState(0L, "rejected", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -297,17 +298,17 @@ class BookingServiceImplTest {
     @Test
     void findBookingsByState_whenStateIsUnknown_thenBadRequestExceptionThrown() {
         BadRequestException badRequest = assertThrows(BadRequestException.class, () -> bookingService
-                .findBookingsByState(0L, "unknown", 0, 1));
+                .findBookingsByState(0L, "unknown", Pageable.unpaged()));
         assertEquals("Unknown state: unknown", badRequest.getMessage());
     }
 
     @Test
     void findBookingByStateForOwner_whenStateIsAll_thenAllBranchIsSelected() {
         when(bookingRepository.findByOwnerId(anyLong(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
         List<Booking> actualBookings = bookingService
-                .findBookingByStateForOwner(0L, "all", 0, 1);
+                .findBookingByStateForOwner(0L, "all", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -317,10 +318,10 @@ class BookingServiceImplTest {
     @Test
     void findBookingByStateForOwner_whenStateIsCurrent_thenCurrentBranchIsSelected() {
         when(bookingRepository.findByOwnerIdCurrentState(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
         List<Booking> actualBookings = bookingService
-                .findBookingByStateForOwner(0L, "Current", 0, 1);
+                .findBookingByStateForOwner(0L, "Current", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -330,10 +331,10 @@ class BookingServiceImplTest {
     @Test
     void findBookingByStateForOwner_whenStateIsPast_thenPastBranchIsSelected() {
         when(bookingRepository.findByOwnerIdPastState(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
         List<Booking> actualBookings = bookingService
-                .findBookingByStateForOwner(0L, "Past", 0, 1);
+                .findBookingByStateForOwner(0L, "Past", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -343,10 +344,10 @@ class BookingServiceImplTest {
     @Test
     void findBookingByStateForOwner_whenStateIsFuture_thenFutureBranchIsSelected() {
         when(bookingRepository.findByOwnerIdFutureState(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
         List<Booking> actualBookings = bookingService
-                .findBookingByStateForOwner(0L, "Future", 0, 1);
+                .findBookingByStateForOwner(0L, "Future", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -356,10 +357,10 @@ class BookingServiceImplTest {
     @Test
     void findBookingByStateForOwner_whenStateIsWaiting_thenWaitingBranchIsSelected() {
         when(bookingRepository.findByOwnerIdAndStatus(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
         List<Booking> actualBookings = bookingService
-                .findBookingByStateForOwner(0L, "waiting", 0, 1);
+                .findBookingByStateForOwner(0L, "waiting", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -369,10 +370,10 @@ class BookingServiceImplTest {
     @Test
     void findBookingByStateForOwner_whenStateIsRejected_thenRejectedBranchIsSelected() {
         when(bookingRepository.findByOwnerIdAndStatus(anyLong(), any(), any()))
-                .thenReturn(Page.empty());
+                .thenReturn(Collections.emptyList());
 
         List<Booking> actualBookings = bookingService
-                .findBookingByStateForOwner(0L, "Rejected", 0, 1);
+                .findBookingByStateForOwner(0L, "Rejected", Pageable.unpaged());
 
         assertNotNull(actualBookings);
         assertTrue(actualBookings.isEmpty());
@@ -382,7 +383,7 @@ class BookingServiceImplTest {
     @Test
     void findBookingByStateForOwner_whenStateIsUnknown_thenBadRequestExceptionThrown() {
         BadRequestException badRequest = assertThrows(BadRequestException.class, () -> bookingService
-                .findBookingByStateForOwner(0L, "unknown", 0, 1));
+                .findBookingByStateForOwner(0L, "unknown", Pageable.unpaged()));
         assertEquals("Unknown state: unknown", badRequest.getMessage());
     }
 

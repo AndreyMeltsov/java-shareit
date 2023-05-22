@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -152,11 +150,11 @@ class ItemServiceImplTest {
     @Test
     void findItemsByUserId_whenUserExists_thenReturnedItems() {
         Long userId = 0L;
-        Page<Item> expectedItems = new PageImpl<>(List.of(
+        List<Item> expectedItems = List.of(
                 new Item(0L, "name", "description", true, 0L, 0L),
                 new Item(1L, "name", "description", true, 0L, 0L),
                 new Item(2L, "name", "description", true, 0L, 0L)
-        ));
+        );
         when(itemRepository.findByOwnerId(anyLong(), any(PageRequest.class))).thenReturn(expectedItems);
 
         List<ItemWithDateAndCommentsDto> actualItemDtos = itemService
@@ -173,7 +171,7 @@ class ItemServiceImplTest {
     @Test
     void getItemsByQuery_whenQueryIsNotEmpty_thenReturnedItemDtos() {
         Long userId = 0L;
-        when(itemRepository.search(any(), any(PageRequest.class))).thenReturn(Page.empty());
+        when(itemRepository.search(any(), any(PageRequest.class))).thenReturn(Collections.emptyList());
         when(itemMapper.mapToItemDto(anyIterable())).thenReturn(List.of(itemDto));
 
         List<ItemDto> actualItemDtos = itemService
@@ -189,8 +187,8 @@ class ItemServiceImplTest {
         CommentDto dto = new CommentDto(0L, "text", null, null);
         when(itemRepository.findById(any())).thenReturn(Optional.of(item));
         when(bookingRepository.findByBookerIdAndEndBefore(any(), any(), any()))
-                .thenReturn(new PageImpl<>(List.of(
-                        new Booking(null, null, null, item, null, null))));
+                .thenReturn(List.of(
+                        new Booking(null, null, null, item, null, null)));
 
         itemService.createComment(userId, item.getId(), dto);
 
@@ -204,8 +202,8 @@ class ItemServiceImplTest {
         CommentDto dto = new CommentDto(0L, "text", null, null);
         when(itemRepository.findById(any())).thenReturn(Optional.of(item));
         when(bookingRepository.findByBookerIdAndEndBefore(any(), any(), any()))
-                .thenReturn(new PageImpl<>(List.of(
-                        new Booking(null, null, null, item, null, null))));
+                .thenReturn(List.of(
+                        new Booking(null, null, null, item, null, null)));
 
         BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> itemService
                 .createComment(userId, itemId, dto));

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         properties = "db.name=test",
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class UserServiceImplIntegrityTest {
+class UserServiceImplIntegrationTest {
     private final EntityManager em;
     private final UserService service;
     UserMapper userMapper = new UserMapper();

@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
@@ -105,7 +104,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemWithDateAndCommentsDto> findItemsByUserId(Long userId, Integer from, Integer size) {
         userService.findUserById(userId);
-        Page<Item> userItems = itemRepository.findByOwnerId(userId, PageRequest.of(from / size, size));
+        List<Item> userItems = itemRepository.findByOwnerId(userId, PageRequest.of(from / size, size));
         List<ItemWithDateAndCommentsDto> itemWithDateAndCommentsDtos = new ArrayList<>();
         List<CommentDto> commentDtos = commentMapper.toCommentDtos(commentRepository.findByOwnerId(userId));
         for (Item item : userItems) {

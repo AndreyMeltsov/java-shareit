@@ -2,8 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -90,7 +89,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findBookingsByState(Long userId, String state, Integer from, Integer size) {
+    public List<Booking> findBookingsByState(Long userId, String state, Pageable pageRequest) {
         BookingState bookingState;
         userService.findUserById(userId);
         try {
@@ -98,8 +97,6 @@ public class BookingServiceImpl implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Unknown state: " + state);
         }
-        Sort sort = Sort.by("start").descending();
-        PageRequest pageRequest = PageRequest.of(from / size, size, sort);
 
         Iterable<Booking> bookings = new ArrayList<>();
         switch (bookingState) {
@@ -128,7 +125,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findBookingByStateForOwner(Long userId, String state, Integer from, Integer size) {
+    public List<Booking> findBookingByStateForOwner(Long userId, String state, Pageable pageRequest) {
         BookingState bookingState;
         userService.findUserById(userId);
         try {
@@ -136,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Unknown state: " + state);
         }
-        PageRequest pageRequest = PageRequest.of(from / size, size);
+
         Iterable<Booking> bookings = new ArrayList<>();
         switch (bookingState) {
             case ALL:

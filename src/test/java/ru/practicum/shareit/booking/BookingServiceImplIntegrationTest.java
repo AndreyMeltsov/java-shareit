@@ -1,10 +1,10 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.model.Item;
@@ -28,51 +28,21 @@ import static org.hamcrest.Matchers.notNullValue;
         properties = "db.name=test",
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class BookingServiceImplIntegrityTest {
+class BookingServiceImplIntegrationTest {
     private final EntityManager em;
     private final BookingService service;
 
-    User user;
-    User owner;
-    Item item;
-
-    @BeforeEach
-    void setUserAndItemAndOwner() {
-        User userEntity = new User(null, "Ivan", "ivan@email");
-        em.persist(userEntity);
-        em.flush();
-
-        TypedQuery<User> queryForUser = em.createQuery("Select u from User u where u.email = :email", User.class);
-        user = queryForUser.setParameter("email", userEntity.getEmail())
-                .getSingleResult();
-
-        User ownerEntity = new User(null, "Owner", "owner@email");
-        em.persist(ownerEntity);
-        em.flush();
-
-        TypedQuery<User> queryForOwner = em.createQuery("Select u from User u where u.email = :email", User.class);
-        owner = queryForOwner.setParameter("email", ownerEntity.getEmail())
-                .getSingleResult();
-
-        Item itemEntity = new Item(null, "name",
-                "description", true, owner.getId(), null);
-        em.persist(itemEntity);
-        em.flush();
-
-        TypedQuery<Item> queryForItem = em.createQuery("Select i from Item i where i.name = :name", Item.class);
-        item = queryForItem.setParameter("name", itemEntity.getName())
-                .getSingleResult();
-    }
-
     @Test
-    void createBooking() {
-        BookingDto bookingDto = new BookingDto(
-                null,
-                item.getId(),
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(1),
-                user.getId()
-        );
+    void createBookingTest() {
+        User user = makeUser("Ivan", "ivan@email");
+        User owner = makeUser("Owner", "owner@email");
+        Item item = makeItem("Item", "description", true, owner.getId());
+        BookingDto bookingDto = BookingDto.builder()
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().plusDays(1))
+                .itemId(item.getId())
+                .bookerId(user.getId())
+                .build();
 
         service.createBooking(user.getId(), bookingDto);
 
@@ -89,15 +59,15 @@ class BookingServiceImplIntegrityTest {
     }
 
     @Test
-    void approveBooking() {
-        Booking booking = new Booking(
-                null,
-                LocalDateTime.now(),
+    void approveBookingTest() {
+        User user = makeUser("Ivan", "ivan@email");
+        User owner = makeUser("Owner", "owner@email");
+        Item item = makeItem("Item", "description", true, owner.getId());
+        Booking booking = makeBooking(LocalDateTime.now(),
                 LocalDateTime.now().plusDays(1),
                 item,
                 user,
-                BookingStatus.WAITING
-        );
+                BookingStatus.WAITING);
         em.persist(booking);
         em.flush();
 
@@ -121,15 +91,16 @@ class BookingServiceImplIntegrityTest {
     }
 
     @Test
-    void findBookingById() {
-        Booking booking = new Booking(
-                null,
-                LocalDateTime.now(),
+    void findBookingByIdTest() {
+        User user = makeUser("Ivan", "ivan@email");
+        User owner = makeUser("Owner", "owner@email");
+        Item item = makeItem("Item", "description", true, owner.getId());
+        Booking booking = makeBooking(LocalDateTime.now(),
                 LocalDateTime.now().plusDays(1),
                 item,
                 user,
-                BookingStatus.WAITING
-        );
+                BookingStatus.WAITING);
+
         em.persist(booking);
         em.flush();
 
@@ -149,29 +120,26 @@ class BookingServiceImplIntegrityTest {
     }
 
     @Test
-    void findBookingsByState() {
+    void findBookingsByStateTest() {
+        User user = makeUser("Ivan", "ivan@email");
+        User owner = makeUser("Owner", "owner@email");
+        Item item = makeItem("Item", "description", true, owner.getId());
         List<Booking> sourceBookings = List.of(
-                new Booking(null,
-                        LocalDateTime.now().minusDays(2),
+                makeBooking(LocalDateTime.now().minusDays(2),
                         LocalDateTime.now().minusDays(1),
                         item,
                         user,
-                        BookingStatus.CANCELED
-                ),
-                new Booking(null,
-                        LocalDateTime.now(),
+                        BookingStatus.CANCELED),
+                makeBooking(LocalDateTime.now(),
                         LocalDateTime.now().plusDays(1),
                         item,
                         user,
-                        BookingStatus.APPROVED
-                ),
-                new Booking(null,
-                        LocalDateTime.now().plusDays(2),
+                        BookingStatus.APPROVED),
+                makeBooking(LocalDateTime.now().plusDays(2),
                         LocalDateTime.now().plusDays(3),
                         item,
                         user,
-                        BookingStatus.WAITING
-                )
+                        BookingStatus.WAITING)
         );
 
         for (Booking sourceBooking : sourceBookings) {
@@ -179,7 +147,7 @@ class BookingServiceImplIntegrityTest {
         }
         em.flush();
 
-        List<Booking> targetBookings = service.findBookingsByState(user.getId(), "all", 0, 10);
+        List<Booking> targetBookings = service.findBookingsByState(user.getId(), "all", Pageable.unpaged());
 
         assertThat(targetBookings, hasSize(sourceBookings.size()));
         for (Booking booking : sourceBookings) {
@@ -195,29 +163,26 @@ class BookingServiceImplIntegrityTest {
     }
 
     @Test
-    void findBookingByStateForOwner() {
+    void findBookingByStateForOwnerTest() {
+        User user = makeUser("Ivan", "ivan@email");
+        User owner = makeUser("Owner", "owner@email");
+        Item item = makeItem("Item", "description", true, owner.getId());
         List<Booking> sourceBookings = List.of(
-                new Booking(null,
-                        LocalDateTime.now().minusDays(2),
+                makeBooking(LocalDateTime.now().minusDays(2),
                         LocalDateTime.now().minusDays(1),
                         item,
                         user,
-                        BookingStatus.CANCELED
-                ),
-                new Booking(null,
-                        LocalDateTime.now(),
+                        BookingStatus.CANCELED),
+                makeBooking(LocalDateTime.now(),
                         LocalDateTime.now().plusDays(1),
                         item,
                         user,
-                        BookingStatus.APPROVED
-                ),
-                new Booking(null,
-                        LocalDateTime.now().plusDays(2),
+                        BookingStatus.APPROVED),
+                makeBooking(LocalDateTime.now().plusDays(2),
                         LocalDateTime.now().plusDays(3),
                         item,
                         user,
-                        BookingStatus.WAITING
-                )
+                        BookingStatus.WAITING)
         );
 
         for (Booking sourceBooking : sourceBookings) {
@@ -225,7 +190,7 @@ class BookingServiceImplIntegrityTest {
         }
         em.flush();
 
-        List<Booking> targetBookings = service.findBookingByStateForOwner(owner.getId(), "all", 0, 10);
+        List<Booking> targetBookings = service.findBookingByStateForOwner(owner.getId(), "all", Pageable.unpaged());
 
         assertThat(targetBookings, hasSize(sourceBookings.size()));
         for (Booking booking : sourceBookings) {
@@ -238,5 +203,43 @@ class BookingServiceImplIntegrityTest {
                     hasProperty("status", equalTo(booking.getStatus()))
             )));
         }
+    }
+
+    private User makeUser(String name, String email) {
+        User user = User.builder().name(name).email(email).build();
+
+        em.persist(user);
+        em.flush();
+
+        TypedQuery<User> queryForUser = em.createQuery("Select u from User u where u.email = :email", User.class);
+        user = queryForUser.setParameter("email", user.getEmail())
+                .getSingleResult();
+        return user;
+    }
+
+    private Item makeItem(String name, String description, boolean available, long ownerId) {
+        Item item = Item.builder()
+                .name(name)
+                .description(description)
+                .available(available)
+                .ownerId(ownerId).build();
+
+        em.persist(item);
+        em.flush();
+
+        TypedQuery<Item> queryForItem = em.createQuery("Select i from Item i where i.name = :name", Item.class);
+        item = queryForItem.setParameter("name", item.getName())
+                .getSingleResult();
+        return item;
+    }
+
+    private Booking makeBooking(LocalDateTime start, LocalDateTime end, Item item, User booker, BookingStatus status) {
+        return Booking.builder()
+                .start(start)
+                .end(end)
+                .item(item)
+                .booker(booker)
+                .status(status)
+                .build();
     }
 }

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.model.Item;
@@ -18,7 +20,6 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -110,7 +111,7 @@ class BookingControllerTest {
     @SneakyThrows
     @Test
     void findBookingsByState() {
-        when(bookingService.findBookingsByState(anyLong(), any(), anyInt(), anyInt()))
+        when(bookingService.findBookingsByState(anyLong(), any(), any()))
                 .thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/bookings")
@@ -120,13 +121,14 @@ class BookingControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
-        verify(bookingService).findBookingsByState(userId, "future", 1, 10);
+        verify(bookingService).findBookingsByState(userId, "future",
+                PageRequest.of(1 / 10, 10, Sort.by("start").descending()));
     }
 
     @SneakyThrows
     @Test
     void findBookingsByStateForOwner() {
-        when(bookingService.findBookingByStateForOwner(anyLong(), any(), anyInt(), anyInt()))
+        when(bookingService.findBookingByStateForOwner(anyLong(), any(), any()))
                 .thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/bookings/owner")
@@ -136,6 +138,6 @@ class BookingControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
-        verify(bookingService).findBookingByStateForOwner(userId, "future", 1, 10);
+        verify(bookingService).findBookingByStateForOwner(userId, "future", PageRequest.of(1 / 10, 10));
     }
 }

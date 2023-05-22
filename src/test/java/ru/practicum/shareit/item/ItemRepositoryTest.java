@@ -3,9 +3,10 @@ package ru.practicum.shareit.item;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.item.model.Item;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,9 +25,9 @@ class ItemRepositoryTest {
                 .available(true)
                 .build());
 
-        Page<Item> result = itemRepository.search("item", Pageable.unpaged());
+        List<Item> result = itemRepository.search("item", Pageable.unpaged());
 
         assertThat(result, iterableWithSize(1));
-        assertThat("some Item", equalTo(result.toList().get(0).getName()));
+        assertThat("some Item", equalTo(result.get(0).getName()));
     }
 }
