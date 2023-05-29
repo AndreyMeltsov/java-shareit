@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: root
 
   server:
-    build: /server
+    build: ./server
     ports:
       - "9090:9090"
     depends_on:
@@ -24,7 +24,7 @@ services:
       #- TZ=Asia/Vladivostok
 
   gateway:
-      build: /gateway
+      build: ./gateway
       ports:
         - "8080:8080"
       depends_on:
