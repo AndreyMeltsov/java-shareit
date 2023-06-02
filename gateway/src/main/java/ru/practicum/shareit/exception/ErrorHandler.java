@@ -7,30 +7,25 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    @ExceptionHandler()
+    @ExceptionHandler({ValidationException.class,
+            MethodArgumentNotValidException.class,
+            IllegalArgumentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ValidationErrorResponse constraintViolationHandle(final ConstraintViolationException e) {
-        log.error("Bad request : " + e.getMessage());
+    public ValidationErrorResponse constraintViolationHandle(final RuntimeException e) {
+        log.error("Bad request : {}", e.getMessage(), e);
         return new ValidationErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler()
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ValidationErrorResponse methodArgumentNotValidHandle(final MethodArgumentNotValidException e) {
-        log.error("Bad request : " + e.getMessage());
-        return new ValidationErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler()
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ValidationErrorResponse illegalArgumentExceptionHandle(final IllegalArgumentException e) {
-        log.error("Bad request : " + e.getMessage());
-        return new ValidationErrorResponse(e.getMessage());
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ValidationErrorResponse handle(final Throwable e) {
+        log.error("Bad request : {}", e.getMessage(), e);
+        return new ValidationErrorResponse("An unexpected error has occurred.");
     }
 
     private static class ValidationErrorResponse {

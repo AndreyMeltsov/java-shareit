@@ -19,6 +19,7 @@ import ru.practicum.shareit.item.dto.ItemRequestDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.Collections;
 
 @Controller
 @RequestMapping(path = "/items")
@@ -53,22 +54,25 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> getItems(@RequestHeader("X-Sharer-User-Id") long userId,
-                                           @PositiveOrZero @RequestParam(name = "from", defaultValue = "0",
-                                                   required = false) Integer from,
-                                           @Positive @RequestParam(name = "size", defaultValue = "20",
-                                                   required = false) Integer size) {
+                                           @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                           Integer from,
+                                           @Positive @RequestParam(name = "size", defaultValue = "20")
+                                           Integer size) {
         log.info("Get items by userId={}, from={}, size={}", userId, from, size);
         return itemClient.getItems(userId, from, size);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> getItemsByQuery(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                  @RequestParam(name = "text", required = false) String query,
-                                                  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0",
-                                                          required = false) Integer from,
-                                                  @Positive @RequestParam(name = "size", defaultValue = "20",
-                                                          required = false) Integer size) {
+                                                  @RequestParam(name = "text") String query,
+                                                  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                                  Integer from,
+                                                  @Positive @RequestParam(name = "size", defaultValue = "20")
+                                                  Integer size) {
         log.info("Get items by query={}, userId={}, from={}, size={}", query, userId, from, size);
+        if (query.isBlank()) {
+            return ResponseEntity.ok().body(Collections.emptyList());
+        }
         return itemClient.getItemsByQuery(userId, query, from, size);
     }
 

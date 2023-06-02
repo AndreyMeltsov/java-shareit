@@ -4,8 +4,6 @@ services:
     image: postgres:13.7-alpine
     volumes:
       - /var/lib/postgresql/data/
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
     ports:
       - "6541:5432"
     environment:
@@ -21,7 +19,7 @@ services:
       - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
-      #- TZ=Asia/Vladivostok
+     # - TZ=Europe/Moscow
 
   gateway:
       build: ./gateway

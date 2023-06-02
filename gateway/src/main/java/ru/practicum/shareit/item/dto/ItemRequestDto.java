@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 @ToString
 public class ItemRequestDto {
     @NotBlank
+    @Size(max = 100)
     private String name;
 
     @NotBlank
