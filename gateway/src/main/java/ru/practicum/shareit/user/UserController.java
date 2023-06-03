@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ru.practicum.shareit.Marker;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 
-import javax.validation.Valid;
-
-@Validated
 @Controller
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
@@ -26,15 +23,14 @@ public class UserController {
     private final UserClient userClient;
 
     @PostMapping
-    @Validated(Marker.OnCreate.class)
-    public ResponseEntity<Object> createUser(@RequestBody @Valid UserRequestDto requestDto) {
+    public ResponseEntity<Object> createUser(@RequestBody @Validated(Marker.OnCreate.class) UserRequestDto requestDto) {
         log.info("Creating user {}", requestDto);
         return userClient.createUser(requestDto);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable Long id,
-                                             @RequestBody @Valid UserRequestDto requestDto) {
+                                             @RequestBody @Validated(Marker.OnUpdate.class) UserRequestDto requestDto) {
         log.info("Updating user with id={}, new User={}", id, requestDto);
         return userClient.updateUser(id, requestDto);
     }

@@ -20,7 +20,7 @@ public class UserRequestDto {
     private String name;
 
     @NotBlank(groups = Marker.OnCreate.class)
-    @Email
+    @Email(groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     @Size(max = 320)
     private String email;
 }
