@@ -16,11 +16,11 @@ import javax.validation.constraints.Size;
 @ToString
 public class UserRequestDto {
     @NotBlank(groups = Marker.OnCreate.class)
-    @Size(max = 100)
+    @Size(max = 100, groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private String name;
 
     @NotBlank(groups = Marker.OnCreate.class)
     @Email(groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    @Size(max = 320)
+    @Size(max = 320, groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private String email;
 }
